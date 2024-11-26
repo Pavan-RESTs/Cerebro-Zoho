@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/commons-logging-1.0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/jackson-databind-2.7.9.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/catalyst-java-cliq-sdk-1.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/catalyst-function-sdk-1.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/jackson-core-2.7.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/json.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/json-simple-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/gradle-wrapper.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/okio-1.13.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/catalyst-java-sdk-1.15.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/okhttp-3.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/jackson-annotations-2.7.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

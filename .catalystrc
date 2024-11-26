@@ -1,0 +1,36 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "4548000000075001",
+      "name": "Cerebro",
+      "domain": {
+        "id": "10091856401",
+        "name": "cerebro-836697597.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "836697597",
+          "name": "Development",
+          "type": 3
+        },
+        {
+          "idx": 2,
+          "id": "10091884161",
+          "name": "Production",
+          "type": 1
+        }
+      ]
+    }
+  ]
+}

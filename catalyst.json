@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "targets": [
+      "Cerebro"
+    ],
+    "ignore": [
+      ".output"
+    ],
+    "source": "functions"
+  }
+}

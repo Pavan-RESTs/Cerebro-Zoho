@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="google-cloud-translate-2.54.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/google-cloud-translate-2.54.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
