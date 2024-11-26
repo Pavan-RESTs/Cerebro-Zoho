@@ -13,7 +13,7 @@ import java.util.Objects;
 public class GeminiAPI {
 
     // API key and base URL for the Gemini API
-    private static final String API_KEY = "XXXX";
+    private static final String API_KEY = System.getenv("GeminiAPI");
     private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
     // Function to generate a quiz based on given parameters

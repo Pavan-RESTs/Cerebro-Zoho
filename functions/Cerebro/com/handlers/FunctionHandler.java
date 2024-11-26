@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.zc.cliq.enums.ACTION_TYPE;
@@ -22,16 +21,13 @@ import com.zc.cliq.enums.BANNER_STATUS;
 import com.zc.cliq.enums.BUTTON_TYPE;
 import com.zc.cliq.enums.FORM_FIELD_TYPE;
 import com.zc.cliq.enums.FORM_MODIFICATION_ACTION_TYPE;
-import com.zc.cliq.enums.SLIDE_TYPE;
 import com.zc.cliq.enums.SYSTEM_API_ACTION;
 import com.zc.cliq.enums.WIDGET_ELEMENT_TYPE;
 import com.zc.cliq.enums.WIDGET_NAVIGATION;
 import com.zc.cliq.enums.WIDGET_TYPE;
 import com.zc.cliq.objects.Action;
 import com.zc.cliq.objects.ActionData;
-import com.zc.cliq.objects.BotSuggestion;
 import com.zc.cliq.objects.ButtonObject;
-import com.zc.cliq.objects.CardDetails;
 import com.zc.cliq.objects.Form;
 import com.zc.cliq.objects.FormAction;
 import com.zc.cliq.objects.FormChangeResponse;
@@ -41,7 +37,6 @@ import com.zc.cliq.objects.FormModificationAction;
 import com.zc.cliq.objects.FormTarget;
 import com.zc.cliq.objects.FormValue;
 import com.zc.cliq.objects.Message;
-import com.zc.cliq.objects.Slide;
 import com.zc.cliq.objects.WidgetButton;
 import com.zc.cliq.objects.WidgetElement;
 import com.zc.cliq.objects.WidgetFooter;
@@ -53,7 +48,9 @@ import com.zc.cliq.requests.FormFunctionRequest;
 import com.zc.cliq.requests.WidgetFunctionRequest;
 import com.zc.cliq.util.ZCCliqUtil;
 
+import helper_functions.FormBuilder;
 import helper_functions.LanguageTranslation;
+import helper_functions.MessageAPI;
 import helper_functions.MessageBuilder;
 import helper_functions.QuizController;
 
@@ -65,6 +62,10 @@ public class FunctionHandler implements com.zc.cliq.interfaces.FunctionHandler {
 	public Map<String, Object> buttonFunctionHandler(ButtonFunctionRequest req) throws Exception {
 		Message msg = Message.getInstance("Button function executed");
 		String buttonName = req.getName();
+		String messageId = req.getMessage().getId();
+		String chatId = req.getChat().getId();
+		MessageAPI.deleteMessage(chatId,messageId);
+
 		Map<String, Object> resp = new HashMap<>();
 		String text = "";
 		if (buttonName.equalsIgnoreCase(("yesButton"))){
@@ -77,11 +78,16 @@ public class FunctionHandler implements com.zc.cliq.interfaces.FunctionHandler {
 
 			// Build and send the first question
 			int ind = QuizController.qno;
-			return MessageBuilder.buildMessage(
+			return MessageBuilder.quizCard(
 					QuizController.questions.get(ind).get(0),
 					QuizController.options.get(ind)
 			);
+		} else if (buttonName.equalsIgnoreCase(("continue"))){
+			return FormBuilder.buildForm();
+		}else if (buttonName.equalsIgnoreCase(("dontContinue"))){
+			msg = Message.getInstance("All right see you later!");
 		}
+
 		else if (buttonName.equalsIgnoreCase("optionA") || buttonName.equalsIgnoreCase("optionB") ||
 		buttonName.equalsIgnoreCase("optionC") || buttonName.equalsIgnoreCase("optionD")) {
 			int currentInd = QuizController.qno;
@@ -102,17 +108,16 @@ public class FunctionHandler implements com.zc.cliq.interfaces.FunctionHandler {
 			if (QuizController.qno < QuizController.questions.size()-1) {
 				// Send the next question
 				int nextInd = ++QuizController.qno;
-				return MessageBuilder.buildMessage(
+				return MessageBuilder.quizCard(
 						QuizController.questions.get(nextInd).get(0),
 						QuizController.options.get(nextInd)
 				);
 			}
 			else {
-				// End the quiz
-				text += "\nQuiz completed successfully! 🎉 Your score is "+ QuizController.score;
+
+				int percentage = (QuizController.score/QuizController.questions.size())*100;
 				QuizController.reset();
-				resp.put("text", text);
-				return resp;
+				return MessageBuilder.quizReviewCard(percentage);
 			}
 		}
 		else if (buttonName.equalsIgnoreCase(("noButton"))){

@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="lib (2)">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/annotations-13.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/kotlin-stdlib-2.0.20.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/kotlinx-coroutines-core-jvm-1.9.0-RC.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/functions/Cerebro/lib/kotlinx-serialization-core-jvm-1.7.1.jar!/" />
+      <root url="file://$PROJECT_DIR$/functions/Cerebro/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/functions/Cerebro/lib" recursive="false" />
+  </library>
+</component>
