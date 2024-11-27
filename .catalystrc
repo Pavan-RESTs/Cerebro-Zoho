@@ -22,13 +22,37 @@
           "idx": 1,
           "id": "836697597",
           "name": "Development",
-          "type": 3
+          "type": 3,
+          "env_status": "Active",
+          "project_details": {
+            "project_name": "Cerebro",
+            "id": "4548000000075001",
+            "project_type": "Live"
+          },
+          "is_default": false,
+          "action_required": false
         },
         {
           "idx": 2,
           "id": "10091884161",
           "name": "Production",
-          "type": 1
+          "type": 1,
+          "env_status": "Active",
+          "project_details": {
+            "project_name": "Cerebro",
+            "id": "4548000000075001",
+            "project_type": "Live"
+          },
+          "is_default": true,
+          "clone_env_id": "836697597",
+          "migrated_services": {
+            "migrated_services": [
+              "Settings",
+              "Serverless"
+            ],
+            "is_catalyst_migrated": true
+          },
+          "action_required": false
         }
       ]
     }

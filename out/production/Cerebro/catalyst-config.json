@@ -4,9 +4,7 @@
 		"stack": "java17",
 		"type": "integration",
 		"environment": {
-			"project_key": "ssg",
-			"project_id": "sadfa",
-			"access_token": "sadf"
+
 		},
 		"integration_config": [
 			{
