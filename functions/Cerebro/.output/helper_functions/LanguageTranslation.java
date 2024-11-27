@@ -143,27 +143,6 @@ public class LanguageTranslation {
      * Main method to demonstrate usage
      */
     public static void main(String[] args) throws Exception {
-        // Example nested list
-        List<List<List<String>>> input = new ArrayList<>();
 
-        // Create a sample nested structure
-        List<List<String>> outerList1 = new ArrayList<>();
-        outerList1.add(List.of("Hello", "World"));
-        outerList1.add(List.of("Java", "Programming"));
-
-        List<List<String>> outerList2 = new ArrayList<>();
-        outerList2.add(List.of("Good", "Morning"));
-        outerList2.add(List.of("How", "Are", "You"));
-
-        input.add(outerList1);
-        input.add(outerList2);
-
-        String response = quizGenerator("Java", "Easy", "3");
-        List<List<List<String>>> quizData = parseQuizResponse(response);
-        List<List<List<String>>> translated = translateNestedList(quizData, "te");
-
-        // Print original and translated lists
-        System.out.println("Original List: " + quizData);
-        System.out.println("Translated List: " + translated);
     }
 }

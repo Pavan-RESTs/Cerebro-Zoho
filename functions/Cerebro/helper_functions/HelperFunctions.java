@@ -6,7 +6,6 @@ import java.util.Random;
 public class HelperFunctions {
 
     public static void main(String[] args) {
-        System.out.println(generateUnique16DigitCode());
     }
 
     public static String generateUnique16DigitCode() {

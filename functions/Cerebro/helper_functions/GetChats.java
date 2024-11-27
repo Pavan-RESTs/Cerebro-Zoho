@@ -6,7 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class GetChats {
-    public static void main(String[] args) {
+    public static void getChat() {
 
         // Call the newAccess function to get the access token
         String accessToken = GenerateAccFromRef.generateAccessToken();

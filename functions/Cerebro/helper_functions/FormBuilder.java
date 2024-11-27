@@ -21,13 +21,13 @@ public class FormBuilder {
         topicInput.put("placeholder", "AI, Blockchain, Cybersecurity, etc...");
         topicInput.put("min_length", "0");
         topicInput.put("max_length", "25");
-        topicInput.put("mandatory", false);
+        topicInput.put("mandatory", true);
         topicInput.put("type", "text");
 
         Map<String, Object> difficultyInput = new HashMap<>();
         difficultyInput.put("label", "Difficulty");
         difficultyInput.put("name", "difficulty");
-        difficultyInput.put("mandatory", false);
+        difficultyInput.put("mandatory", true);
         difficultyInput.put("type", "radio");
 
         // Create options for difficulty
@@ -48,10 +48,10 @@ public class FormBuilder {
         Map<String, Object> numberInput = new HashMap<>();
         numberInput.put("label", "No of questions");
         numberInput.put("name", "number");
-        numberInput.put("placeholder", "Max 10");
+        numberInput.put("placeholder", "Max 8 due to api charges");
         numberInput.put("min", "0");
-        numberInput.put("max", "15");
-        numberInput.put("mandatory", false);
+        numberInput.put("max", "8");
+        numberInput.put("mandatory", true);
         numberInput.put("type", "number");
 
         Map<String, Object> languageInput = new HashMap<>();
@@ -59,7 +59,7 @@ public class FormBuilder {
         languageInput.put("name", "language");
         languageInput.put("placeholder", "Tamil, Hindi, English, etc...");
         languageInput.put("multiple", false);
-        languageInput.put("mandatory", false);
+        languageInput.put("mandatory", true);
         languageInput.put("type", "dynamic_select");
 
         // Create options for language selection

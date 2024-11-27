@@ -76,7 +76,5 @@ public class GenerateAccFromRef {
     }
 
     public static void main(String[] args) {
-
-        String accessToken = generateAccessToken();
     }
 }

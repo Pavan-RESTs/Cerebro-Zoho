@@ -126,7 +126,7 @@ public class CatalystDatabase {
         int responseCode = 0;
         try {
             // Define the API endpoint URL for fetching data
-            String apiUrl = String.format("https://api.catalyst.zoho.com/baas/v1/project/4548000000087809/table/%s/row?max_rows=100&next_token=%s", tableId, nextToken);
+            String apiUrl = String.format("https://api.catalyst.zoho.com/baas/v1/project/4548000000087809/table/%s/row?max_rows=100", tableId);
 
             // Create a URL object
             URL url = new URL(apiUrl);
@@ -223,13 +223,6 @@ public class CatalystDatabase {
 
 
     public static void main(String args[]) {
-String userId = "835556460";
-int score = 0;
-int timeTaken = 4;
-        List<HashMap<String,String>> leaderboard = CatalystDatabase.fetchData("4548000000089204","");
-        System.out.println(leaderboard);
-
-
 
     }
     }

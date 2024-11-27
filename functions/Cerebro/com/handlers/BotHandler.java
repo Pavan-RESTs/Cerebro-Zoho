@@ -1,15 +1,12 @@
-//$Id$
 package com.handlers;
 
 import static helper_functions.GeminiAPI.parseQuizResponse;
 import static helper_functions.GeminiAPI.quizGenerator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,18 +51,24 @@ public class BotHandler implements com.zc.cliq.interfaces.BotHandler {
 		String userEmail = req.getUser().getEmail();
 		String userLocation = InAppData.returnCountryName(req.getUser().getCountry());
 
+		LOGGER.info("Welcome handler triggered for user: " + userName + " (" + userEmail + ")");
+
 		String jsonPayload = String.format("[{\"UserId\":\"%s\",\"UserName\":\"%s\"," +
 				"\"UserEmail\":\"%s\",\"UserLocation\":\"%s\"}]", userId, userName, userEmail, userLocation);
 
 		CatalystDatabase.insertData("4548000000087860", jsonPayload);
+		LOGGER.info("Inserted user data into database with payload: " + jsonPayload);
+
 		jsonPayload = String.format("[{\"UserId\":\"%s\",\"UserName\":\"%s\"," +
 				"\"Location\":\"%s\"}]", userId, userName, userLocation);
 
 		CatalystDatabase.insertData("4548000000089204", jsonPayload);
+		LOGGER.info("Inserted user location into database with payload: " + jsonPayload);
 
 		String uName = req.getUser() != null ? req.getUser().getFirstName() : "user";
 		String text = "Hello " + uName + ". Thank you for subscribing :smile:\n";
 		Message msg = Message.getInstance(text);
+		LOGGER.info("Sending welcome message: " + text);
 		return ZCCliqUtil.toMap(msg);
 	}
 
@@ -75,6 +78,8 @@ public class BotHandler implements com.zc.cliq.interfaces.BotHandler {
 			String message = req.getMessage();
 			Map<String, Object> resp = new HashMap<>();
 			String text = "";
+
+			LOGGER.info("Received message: " + message);
 
 			if (message == null) {
 				text = "Please enable 'Message' in bot settings";
@@ -87,17 +92,21 @@ public class BotHandler implements com.zc.cliq.interfaces.BotHandler {
 				suggestion.addSuggestion("Worst");
 				resp.put("suggestions", suggestion);
 			} else if (message.equalsIgnoreCase("quiz")) {
+				LOGGER.info("Quiz generation has started!");
 				return FormBuilder.buildForm();
 			}else if (message.equalsIgnoreCase("api")) {
-			List<HashMap<String,String>> leaderboard = CatalystDatabase.fetchData("4548000000089204","");
+				List<HashMap<String,String>> leaderboard = CatalystDatabase.fetchData("4548000000089204", "");
+
 				String totalQuiz = leaderboard.get(1).get("TotalQuiz");
-			resp.put("text",totalQuiz+"sf");
-			return resp;
+				LOGGER.info("API request received. Total quizzes: " + totalQuiz);
+				resp.put("text", totalQuiz + "sf");
+				return resp;
 			}else {
 				text = "Sorry, I'm not programmed yet to do this :sad:";
 			}
 
 			resp.put("text", text);
+			LOGGER.info("Sending response: " + text);
 			return resp;
 
 		} catch (Exception ex) {
@@ -107,30 +116,6 @@ public class BotHandler implements com.zc.cliq.interfaces.BotHandler {
 	}
 
 
-	@Override
-	public Map<String, Object> contextHandler(BotContextHandlerRequest req) {
-		Map<String, Object> resp = new HashMap<String, Object>();
-		if (req.getContextId().equals("personal_details")) {
-			Map<String, String> answers = req.getAnswers();
-			StringBuilder str = new StringBuilder();
-			str.append("*Name*: ").append(answers.get("name")).append("\n");
-			str.append("*Department*: ").append(answers.get("dept")).append("\n");
-
-			if(answers.get("cache").equals("YES")) {
-				try {
-					ZCCache cache = ZCCache.getInstance();
-					cache.putCacheValue("Name", answers.get("name"), 1L);
-					cache.putCacheValue("Department", answers.get("dept"), 1L);
-					str.append("This data is now available in Catalyst Cache's default segment.");
-				} catch(Exception ex) {
-					System.out.print("Error putting the value to cache: " + ex.toString());
-				}
-			}
-
-			resp.put("text", "Nice ! I have collected your info: \n" + str.toString());
-		}
-		return resp;
-	}
 
 	@Override
 	public Map<String, Object> mentionHandler(BotMentionHandlerRequest req) {
@@ -138,7 +123,19 @@ public class BotHandler implements com.zc.cliq.interfaces.BotHandler {
 		String text = "Hey *" + req.getUser().getFirstName() + "*, thanks for mentioning me here. I'm from Catalyst city";
 		Map<String, Object> resp = new HashMap<String, Object>();
 		resp.put("text", text);
+
+		LOGGER.info("Mention received from user: " + req.getUser().getFirstName());
 		return resp;
+	}
+
+	@Override
+	public Map<String, Object> contextHandler(BotContextHandlerRequest botContextHandlerRequest) throws Exception {
+		return Map.of();
+	}
+
+	@Override
+	public Map<String, Object> webhookHandler(BotWebhookHandlerRequest botWebhookHandlerRequest) throws Exception {
+		return Map.of();
 	}
 
 	@Override
@@ -153,50 +150,11 @@ public class BotHandler implements com.zc.cliq.interfaces.BotHandler {
 			text = "Menu action triggered :fist:";
 		}
 		resp.put("text", text);
+
+		LOGGER.info("Menu action received: " + req.getActionName());
 		return resp;
 	}
 
-	@Override
-	public Map<String, Object> webhookHandler(BotWebhookHandlerRequest req) throws Exception {
-		// Sample handler class for incoming mails in ZohoMail
-		// Please configure the bot in ZohoMail's outgoing webhooks
-		JSONObject reqBody = req.getBody();
-		String summary;
-		String bodyStr = new StringBuilder("*From*: ").append(reqBody.getString("fromAddress")).append("\n*Subject*: ").append(reqBody.getString("subject")).append("\n*Content*: ").append((summary = reqBody.getString("summary")).length() > 100 ? summary.substring(0, 100) : summary).toString();
-		Message msg = Message.getInstance(bodyStr);
-		msg.setBot("PostPerson", "https://www.zoho.com/sites/default/files/catalyst/functions-images/icon-robot.jpg");
-		CardDetails card = CardDetails.getInstance();
-		card.setTitle("New Mail");
-		card.setThumbnail("https://www.zoho.com/sites/default/files/catalyst/functions-images/mail.svg");
-		msg.setCard(card);
-
-		ButtonObject button = new ButtonObject();
-		button.setLabel("Open mail");
-		button.setType(BUTTON_TYPE.GREEN_OUTLINE);
-		button.setHint("Click to open the mail in a new tab");
-		Action action = new Action();
-		action.setType(ACTION_TYPE.OPEN_URL);
-		ActionData actionData = new ActionData();
-		actionData.setWeb("https://mail.zoho.com/zm/#mail/folder/inbox/p/" + reqBody.getLong("messageId"));
-		action.setData(actionData);
-		button.setAction(action);
-
-		msg.addButton(button);
-
-		Slide gifSlide = Slide.getInstance();
-		gifSlide.setType(SLIDE_TYPE.IMAGES);
-		gifSlide.setTitle("");
-		List<String> obj = new ArrayList<String>() {
-			{
-				add("https://media.giphy.com/media/efyEShk2FJ9X2Kpd7V/giphy.gif");
-			}
-		};
-		gifSlide.setData(obj);
-
-		msg.addSlide(gifSlide);
-
-		return ZCCliqUtil.toMap(msg);
-	}
 
 	@Override
 	public Map<String, Object> participationHandler(BotParticipationHandlerRequest req) throws Exception {
@@ -209,6 +167,8 @@ public class BotHandler implements com.zc.cliq.interfaces.BotHandler {
 			text = "I'm too a participant of this chat :wink:";
 		}
 		Message msg = Message.getInstance(text);
+
+		LOGGER.info("Participation handler triggered with operation: " + req.getOperation());
 		return ZCCliqUtil.toMap(msg);
 	}
 }

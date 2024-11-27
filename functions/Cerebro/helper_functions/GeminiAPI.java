@@ -151,15 +151,6 @@ public class GeminiAPI {
 
     // Main method for testing the Gemini API integration
     public static void main(String[] args) {
-        try {
-            String response = quizGenerator("SAAS", "Easy", "2"); // Generate a quiz
-            List<List<List<String>>> quizData = parseQuizResponse(response); // Parse the quiz response
-            QuizController.questions = quizData.get(0);
-            QuizController.options = quizData.get(1);
-            QuizController.answers = quizData.get(2);
-            System.out.println(quizData);
-        } catch (Exception e) {
-            System.err.println("Error communicating with Gemini: " + e.getMessage()); // Handle errors
-        }
+
     }
 }

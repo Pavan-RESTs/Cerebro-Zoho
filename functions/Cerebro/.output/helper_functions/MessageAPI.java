@@ -39,34 +39,9 @@ public class MessageAPI {
         }
     }
 
-    public static void deleteMessage(String chatId, String messageId) {
-        String accessToken = GenerateAccFromRef.generateAccessToken();  // Assuming this function generates the access token
 
-        // Create the HttpClient instance
-        HttpClient client = HttpClient.newHttpClient();
-
-        // Prepare the DELETE request
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://cliq.zoho.com/api/v2/chats/" + chatId + "/messages/" + messageId))
-                .header("Authorization", "Bearer " + accessToken)
-                .DELETE()  // Use DELETE method to delete the message
-                .build();
-
-        // Send the request and handle the response
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Print the response from the chat API
-            System.out.println("Response Status Code: " + response.statusCode());
-            System.out.println("Response Body: " + response.body());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void main(String[] args) {
         // Example usage of deleteMessage function
-        deleteMessage("CT_2218463219501460345_835930979-B2", "1732642077680%201771296782434");
     }
 }

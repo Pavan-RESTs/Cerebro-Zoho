@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.json.JSONObject;
@@ -60,91 +61,106 @@ import helper_functions.QuizController;
 
 public class FunctionHandler implements com.zc.cliq.interfaces.FunctionHandler {
 
-	Logger LOGGER = Logger.getLogger(FunctionHandler.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(FunctionHandler.class.getName());
 
 	@Override
 	public Map<String, Object> buttonFunctionHandler(ButtonFunctionRequest req) throws Exception {
+		LOGGER.info("Entering buttonFunctionHandler with button name: " + req.getName());
+
 		Message msg = Message.getInstance("Button function executed");
 		String buttonName = req.getName();
 		String messageId = req.getMessage().getId();
 		String chatId = req.getChat().getId();
-		MessageAPI.deleteMessage(chatId,messageId);
+
+
 
 		Map<String, Object> resp = new HashMap<>();
 		String text = "";
-		if (buttonName.equalsIgnoreCase(("yesButton"))){
-			// Start the first question
-			if (QuizController.questions.isEmpty()) {
-				text = "No quiz data found. Please try again.";
-				resp.put("text", text);
-				return resp;
-			}
 
+		try {
+			if (buttonName.equalsIgnoreCase(("yesButton"))) {
+				LOGGER.info("Processing yesButton");
+				if (QuizController.questions.isEmpty()) {
+					text = "No quiz data found. Please try again.";
+					LOGGER.warning("No quiz questions available");
+					resp.put("text", text);
+					return resp;
+				}
 
+				QuizController.userId = req.getUser().getId();
+				QuizController.quizId = HelperFunctions.generateUnique16DigitCode();
+				QuizController.date = LocalDate.now().toString();
+				QuizController.startTime = LocalTime.now();
 
-			QuizController.userId = req.getUser().getId();
-			QuizController.quizId = HelperFunctions.generateUnique16DigitCode();
-			QuizController.date = LocalDate.now().toString();
-			QuizController.startTime = LocalTime.now();
+				LOGGER.info("Quiz started for user: " + QuizController.userId + ", Quiz ID: " + QuizController.quizId);
 
-
-			// Build and send the first question
-			int ind = QuizController.qno;
-			return MessageBuilder.quizCard(
-					QuizController.questions.get(ind).get(0),
-					QuizController.options.get(ind)
-			);
-		} else if (buttonName.equalsIgnoreCase(("continue"))){
-			return FormBuilder.buildForm();
-		}else if (buttonName.equalsIgnoreCase(("dontContinue"))){
-			msg = Message.getInstance("All right see you later!");
-		}
-
-		else if (buttonName.equalsIgnoreCase("optionA") || buttonName.equalsIgnoreCase("optionB") ||
-		buttonName.equalsIgnoreCase("optionC") || buttonName.equalsIgnoreCase("optionD")) {
-			int currentInd = QuizController.qno;
-			String ans = "";
-			if (buttonName.equalsIgnoreCase("optionA")){
-				ans = QuizController.options.get(currentInd).get(0);
-			} else if (buttonName.equalsIgnoreCase("optionB")){
-				ans = QuizController.options.get(currentInd).get(1);
-			}else if (buttonName.equalsIgnoreCase("optionC")){
-				ans = QuizController.options.get(currentInd).get(2);
-			}else if (buttonName.equalsIgnoreCase("optionD")){
-				ans = QuizController.options.get(currentInd).get(3);
-			}
-
-			if (Objects.equals(ans, QuizController.answers.get(currentInd).get(0))){
-				QuizController.score = QuizController.score + 1;
-			}
-			if (QuizController.qno < QuizController.questions.size()-1) {
-				// Send the next question
-				int nextInd = ++QuizController.qno;
+				int ind = QuizController.qno;
 				return MessageBuilder.quizCard(
-						QuizController.questions.get(nextInd).get(0),
-						QuizController.options.get(nextInd)
+						QuizController.questions.get(ind).get(0),
+						QuizController.options.get(ind)
 				);
-			}
-			else {
+			} else if (buttonName.equalsIgnoreCase(("continue"))) {
+				LOGGER.info("Processing continue button");
+				return FormBuilder.buildForm();
+			} else if (buttonName.equalsIgnoreCase(("dontContinue"))) {
+				LOGGER.info("User chose not to continue");
+				msg = Message.getInstance("All right see you later!");
+			} else if (buttonName.equalsIgnoreCase("optionA") || buttonName.equalsIgnoreCase("optionB") ||
+					buttonName.equalsIgnoreCase("optionC") || buttonName.equalsIgnoreCase("optionD")) {
+				LOGGER.info("Processing quiz answer option: " + buttonName);
+				int currentInd = QuizController.qno;
+				String ans = "";
+				if (buttonName.equalsIgnoreCase("optionA")) {
+					ans = QuizController.options.get(currentInd).get(0);
+				} else if (buttonName.equalsIgnoreCase("optionB")) {
+					ans = QuizController.options.get(currentInd).get(1);
+				} else if (buttonName.equalsIgnoreCase("optionC")) {
+					ans = QuizController.options.get(currentInd).get(2);
+				} else if (buttonName.equalsIgnoreCase("optionD")) {
+					ans = QuizController.options.get(currentInd).get(3);
+				}
 
-				return MessageBuilder.quizReviewCard(QuizController.score);
+				if (Objects.equals(ans, QuizController.answers.get(currentInd).get(0))) {
+					QuizController.score = QuizController.score + 1;
+					LOGGER.fine("Correct answer. Current score: " + QuizController.score);
+				}
+
+				if (QuizController.qno < QuizController.questions.size() - 1) {
+					int nextInd = ++QuizController.qno;
+					LOGGER.info("Moving to next question. Question number: " + nextInd);
+					return MessageBuilder.quizCard(
+							QuizController.questions.get(nextInd).get(0),
+							QuizController.options.get(nextInd)
+					);
+				} else {
+					LOGGER.info("Quiz completed. Final score: " + QuizController.score);
+					return MessageBuilder.quizReviewCard(QuizController.score);
+				}
+			} else if (buttonName.equalsIgnoreCase(("noButton"))) {
+				LOGGER.info("Quiz revoked by user");
+				msg = Message.getInstance("Quiz has been revoked");
 			}
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error in buttonFunctionHandler", e);
+			throw e;
 		}
-		else if (buttonName.equalsIgnoreCase(("noButton"))){
-			msg = Message.getInstance("Quiz has been revoked");
-		}
+
+		LOGGER.info("Exiting buttonFunctionHandler");
 		return ZCCliqUtil.toMap(msg);
 	}
 
 	@Override
 	public Map<String, Object> formSubmitHandler(FormFunctionRequest req) throws Exception {
-		// Retrieve submitted form values
+		LOGGER.info("Entering formSubmitHandler");
+
 		JSONObject values = req.getForm().getValues();
 
-		// Access specific form fields using their "name" property
-		String topic = values.optString("topic", ""); // Retrieves the topic
-		String difficulty = values.optString("difficulty", ""); // Retrieves the difficulty level
-QuizController.quizTopic = topic;
+		String topic = values.optString("topic", "");
+		String difficulty = values.optString("difficulty", "");
+
+		LOGGER.info("Form submitted with topic: " + topic + ", difficulty: " + difficulty);
+
+		QuizController.quizTopic = topic;
 		if (difficulty.contains("Easy")) {
 			difficulty = "Easy";
 		} else if (difficulty.contains("Medium")) {
@@ -154,8 +170,10 @@ QuizController.quizTopic = topic;
 		}
 		QuizController.quizDifficulty = difficulty;
 
-		String number = values.optString("number", ""); // Retrieves the number of questions
-		String language = values.optString("language", ""); // Retrieves the language
+		String number = values.optString("number", "");
+		String language = values.optString("language", "");
+
+		LOGGER.fine("Number of questions: " + number + ", Language: " + language);
 
 		if (language.contains("Tamil")) {
 			language = "Tamil";
@@ -167,55 +185,56 @@ QuizController.quizTopic = topic;
 			language = "Hindi";
 		}
 
-		String response = quizGenerator(topic,difficulty,number);
-		List<List<List<String>>> quizData = parseQuizResponse(response);
-		if (Objects.equals(language,"Tamil")){
-			quizData = LanguageTranslation.translateNestedList(quizData,"ta");
+		try {
+			String response = quizGenerator(topic, difficulty, number);
+			List<List<List<String>>> quizData = parseQuizResponse(response);
+
+			LOGGER.info("Quiz generated successfully");
+
+			if (Objects.equals(language, "Tamil")) {
+				quizData = LanguageTranslation.translateNestedList(quizData, "ta");
+			} else if (Objects.equals(language, "Telugu")) {
+				quizData = LanguageTranslation.translateNestedList(quizData, "te");
+			} else if (Objects.equals(language, "Hindi")) {
+				quizData = LanguageTranslation.translateNestedList(quizData, "hi");
+			}
+
+			QuizController.questions = quizData.get(0);
+			QuizController.options = quizData.get(1);
+			QuizController.answers = quizData.get(2);
+
+			LOGGER.fine("Quiz data populated. Questions count: " + QuizController.questions.size());
+
+			Message msg = Message.getInstance("Quiz generated successfully.\nWould you like to start the quiz?");
+			ButtonObject yesButton = new ButtonObject();
+			yesButton.setType(BUTTON_TYPE.GREEN_OUTLINE);
+			yesButton.setLabel("Yes");
+			Action action = new Action();
+			action.setType(ACTION_TYPE.INVOKE_FUNCTION);
+			ActionData actionData = new ActionData();
+			actionData.setName("yesButton");
+			action.setData(actionData);
+			yesButton.setAction(action);
+			msg.addButton(yesButton);
+
+			ButtonObject noButton = new ButtonObject();
+			noButton.setType(BUTTON_TYPE.RED_OUTLINE);
+			noButton.setLabel("No");
+			Action action1 = new Action();
+			action1.setType(ACTION_TYPE.INVOKE_FUNCTION);
+			ActionData actionData1 = new ActionData();
+			actionData1.setName("noButton");
+			action1.setData(actionData1);
+			noButton.setAction(action1);
+			msg.addButton(noButton);
+
+			LOGGER.info("Exiting formSubmitHandler");
+			return ZCCliqUtil.toMap(msg);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error in formSubmitHandler", e);
+			throw e;
 		}
-		else if (Objects.equals(language,"Telugu")){
-			quizData = LanguageTranslation.translateNestedList(quizData,"te");
-		}
-		else if (Objects.equals(language,"Hindi")){
-			quizData = LanguageTranslation.translateNestedList(quizData,"hi");
-		}
-		QuizController.questions = quizData.get(0);
-		QuizController.options = quizData.get(1);
-		QuizController.answers = quizData.get(2);
-
-
-
-		// Create a response message
-		Message msg = Message.getInstance("Quiz generated successfully.\nWould you like to start the quiz?");
-		ButtonObject yesButton = new ButtonObject();
-		yesButton.setType(BUTTON_TYPE.GREEN_OUTLINE);
-		yesButton.setLabel("Yes");
-		Action action = new Action();
-		action.setType(ACTION_TYPE.INVOKE_FUNCTION);
-		ActionData actionData = new ActionData();
-		actionData.setName("yesButton");
-		action.setData(actionData);
-		yesButton.setAction(action);
-		msg.addButton(yesButton);
-
-		ButtonObject noButton = new ButtonObject();
-		noButton.setType(BUTTON_TYPE.RED_OUTLINE);
-		noButton.setLabel("No");
-		Action action1 = new Action();
-		action1.setType(ACTION_TYPE.INVOKE_FUNCTION);
-		ActionData actionData1 = new ActionData();
-		actionData1.setName("noButton");
-		action1.setData(actionData1);
-		noButton.setAction(action1);
-		msg.addButton(noButton);
-
-
-
-
-
-		// Return the response
-		return ZCCliqUtil.toMap(msg);
 	}
-
 
 
 	@Override
