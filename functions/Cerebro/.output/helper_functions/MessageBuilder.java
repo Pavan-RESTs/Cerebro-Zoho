@@ -53,7 +53,7 @@ public class MessageBuilder {
         return resp;
     }
 
-    public static Map<String, Object> quizReviewCard(int score) {
+    public static Map<String, Object> quizReviewCard(double score) {
         // Record quiz end time and gather user data
         QuizController.endTime = LocalTime.now();
         String userId = QuizController.userId;
@@ -61,40 +61,41 @@ public class MessageBuilder {
         String quizTopic = QuizController.quizTopic;
         String timeTaken = String.valueOf(Duration.between(QuizController.startTime, QuizController.endTime).toSeconds());
         String quizDate = QuizController.date;
-        double percentage = (score * 1.0 / QuizController.questions.size()) * 100;
+        double percentage = (score / QuizController.questions.size()) * 100;
 
-//        // Insert quiz result into the database
-//        String jsonPayload1 = String.format(
-//                "[{\"UserId\":\"%s\",\"QuizId\":\"%s\",\"QuizTopic\":\"%s\",\"TimeTaken\":\"%ss\"," +
-//                        "\"QuizDate\":\"%s\",\"Score\":\"%d\"}]",
-//                userId, quizId, quizTopic, timeTaken, quizDate, score
-//        );
-//        CatalystDatabase.insertData("4548000000082389", jsonPayload1);
-//
-//        List<HashMap<String,String>> leaderboard = CatalystDatabase.fetchData("4548000000089204","");
-//        String totalQuiz = leaderboard.get(1).get("TotalQuiz");
-//        System.out.println(totalQuiz);
-//        int total = Integer.parseInt(totalQuiz);
-//        System.out.println(totalQuiz);
-//        String timeSpent = leaderboard.get(1).get("TimeSpent");
-//        int time = Integer.parseInt(timeSpent);
-//        String average = leaderboard.get(1).get("Average");
-//        int avg = Integer.parseInt(average);
-//        int finalScore = percentage;
-//        time = Integer.parseInt(timeTaken) + time;
-//        String rowId = "";
-//        for (int i=0; i<leaderboard.size(); i++){
-//            HashMap<String,String> row = leaderboard.get(i);
-//            if (Objects.equals(row.get("UserId"), userId)){
-//                rowId = row.get("ROWID");
-//            }
-//        }
-//
-//        String jsonPayload2 = String.format("[{\"ROWID\":\"%s\",\"Average\":\"%s\"," +
-//                        "\"TimeSpent\":\"%s\",\"TotalBadges\":\"%s\",\"TotalQuiz\":\"%s\"}]",
-//                rowId, finalScore, time, 0, total+1);
-//
-//        CatalystDatabase.updateData("4548000000089204",jsonPayload2);
+        // Insert quiz result into the database
+        String jsonPayload1 = String.format(
+                "[{\"UserId\":\"%s\",\"QuizId\":\"%s\",\"QuizTopic\":\"%s\",\"TimeTaken\":\"%s\"," +
+                        "\"QuizDate\":\"%s\",\"Score\":\"%.2f\"}]",
+                userId, quizId, quizTopic, timeTaken, quizDate, percentage
+        );
+        CatalystDatabase.insertData("4548000000082389", jsonPayload1);
+
+        List<HashMap<String,String>> leaderboard = CatalystDatabase.fetchData("4548000000089204","");
+        String totalQuiz = leaderboard.get(1).get("TotalQuiz");
+        int total = Integer.parseInt(totalQuiz);
+        String timeSpent = leaderboard.get(1).get("TimeSpent");
+        int time = Integer.parseInt(timeSpent);
+        String average = leaderboard.get(1).get("Average");
+        double avg = Double.parseDouble(average);
+        double finalScore = percentage;
+        if (avg!=0){
+            finalScore = (percentage + avg)/2;
+        }
+        time = Integer.parseInt(timeTaken) + time;
+        String rowId = "";
+        for (int i=0; i<leaderboard.size(); i++){
+            HashMap<String,String> row = leaderboard.get(i);
+            if (Objects.equals(row.get("UserId"), userId)){
+                rowId = row.get("ROWID");
+            }
+        }
+
+        String jsonPayload2 = String.format("[{\"ROWID\":\"%s\",\"Average\":\"%.2f\"," +
+                        "\"TimeSpent\":\"%d\",\"TotalBadges\":\"%d\",\"TotalQuiz\":\"%d\"}]",
+                rowId, finalScore, time, 0, total+1);
+
+        CatalystDatabase.updateData("4548000000089204",jsonPayload2);
 
         // Get review statements based on score
         List<List<String>> statement = InAppData.giveReview();

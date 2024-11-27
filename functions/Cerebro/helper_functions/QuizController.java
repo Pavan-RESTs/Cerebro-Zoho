@@ -19,7 +19,7 @@ public class QuizController {
 
 
 
-    public static int score = 0;
+    public static double score = 0.0;
 
     public static int qno = 0;
 
